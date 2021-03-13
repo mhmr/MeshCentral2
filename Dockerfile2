@@ -1,0 +1,32 @@
+FROM node:stretch
+LABEL Mohammad Mardoud <mhmr81@gmail.com>
+
+RUN apt-get update && apt-get -y install mongodb sudo libcap2-bin
+
+COPY startmeshcentral.sh /
+RUN useradd -ms /bin/bash meshcentral \
+    && chmod +x /startmeshcentral.sh \
+    && mv -f /startmeshcentral.sh /home/startmeshcentral.sh \
+    && setcap 'cap_net_bind_service=+ep' /home/startmeshcentral.sh
+
+USER meshcentral
+WORKDIR /home/meshcentral
+
+RUN cd /home/meshcentral \
+    && npm install meshcentral 
+    
+ENV PORT 443  
+ENV REDIRPORT 80  
+ENV MPSPORT 4443
+ENV EMAIL mail@host
+ENV HOST host.ltd
+ENV SMTP smtp.host.ltd
+ENV USER smtp@user
+ENV PASS smtppass!
+ENV DB netdb
+ENV MONGODB "mongodb://127.0.0.1:27017/meshcentral"
+ENV MONGODBCOL "meshcentral"
+
+EXPOSE 25 80 443 4443 27017 27018
+
+ENTRYPOINT ["/home/startmeshcentral.sh"]

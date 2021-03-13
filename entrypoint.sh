@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 export PORT  
 export REDIRPORT
 export MPSPORT
@@ -11,8 +11,7 @@ export DB
 export MONGODB
 export MONGODBCOL
 
-su - meshserver
-cd /home/meshserver/
+cd /home/meshcentral/
 npm install meshcentral
 
 sed -i "s#: 443,#: $PORT,#" meshcentral-data/config.json
@@ -76,9 +75,13 @@ then
     ln -sf "/etc/letsencrypt/archive/$HOSTNAME/cert1.pem" meshcentral-data/mpsserver-cert-public.crt
 fi
 
+cd node_modules/
+
 if ! [ -f meshcentral-data/agentserver-cert-private.key ]
 then 
-	node node_modules/meshcentral/meshcentral.js --cert $HOSTNAME
+	exec node meshcentral --cert $HOSTNAME "$@"
 else 
-	node node_modules/meshcentral/meshcentral.js
+	exec node meshcentral "$@"
 fi
+
+$@
